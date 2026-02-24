@@ -7,7 +7,7 @@
 ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝ ╚═╝
 ```
 
-**Plays a sound the moment your code breaks.** Faah hooks into VS Code's failure events — terminal exits, task failures, and diagnostic errors on save — so you never silently ship broken code.
+**Get hit with the FAAH effect the moment your code breaks.** Hooks into VS Code's failure events — terminal exits, task failures, and diagnostic errors on save — so you never silently ship broken code.
 
 ---
 
