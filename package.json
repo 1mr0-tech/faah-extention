@@ -1,6 +1,6 @@
 {
   "name": "faah-sound",
-  "displayName": "Faah",
+  "displayName": "Faah!",
   "description": "Plays a sound effect when you encounter a failure — terminal exits, task failures, and diagnostic errors on save.",
   "version": "1.0.0",
   "publisher": "1mr0-tech",
