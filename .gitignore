@@ -15,5 +15,9 @@ node_modules/
 .vscode/settings.json
 .DS_Store
 
+# Build artifacts
+target/
+*.class
+
 # Logs
 *.log
