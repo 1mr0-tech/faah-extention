@@ -1,0 +1,19 @@
+# Built packages
+*.vsix
+
+# Dependencies
+node_modules/
+
+# AI assistant tool directories
+.claude/
+.aider*
+.cursor/
+.continue/
+.copilot/
+
+# Editor
+.vscode/settings.json
+.DS_Store
+
+# Logs
+*.log

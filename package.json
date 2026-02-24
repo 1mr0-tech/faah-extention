@@ -1,0 +1,38 @@
+{
+  "name": "faah",
+  "displayName": "Faah",
+  "description": "Plays a sound effect when you encounter a failure — terminal exits, task failures, and diagnostic errors on save.",
+  "version": "1.0.0",
+  "publisher": "1mr0-tech",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1mr0-tech/faah-extention"
+  },
+  "bugs": {
+    "url": "https://github.com/1mr0-tech/faah-extention/issues"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["sound", "audio", "failure", "test", "notification"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "faah.enable",
+        "title": "Faah: Enable"
+      },
+      {
+        "command": "faah.disable",
+        "title": "Faah: Disable"
+      },
+      {
+        "command": "faah.showLogs",
+        "title": "Faah: Show Logs"
+      }
+    ]
+  }
+}

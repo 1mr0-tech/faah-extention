@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Faah Test: Failing task (exit 1)",
+      "type": "shell",
+      "command": "bash tests/trigger1-task-failure.sh",
+      "problemMatcher": []
+    }
+  ]
+}

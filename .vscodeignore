@@ -1,0 +1,15 @@
+.git
+.git/**
+.vscode
+.vscode/**
+.claude
+.claude/**
+.gitignore
+tests
+tests/**
+*.vsix
+node_modules
+node_modules/**
+**/*.test.js
+**/*.spec.js
+.vscodeignore
