@@ -13,15 +13,44 @@
 
 ## What it does
 
-Faah listens for three types of failure:
+| Event | Failure | Success |
+|---|---|---|
+| Build / test command in terminal | 💥 Faah | ⭐ Wow |
+| VS Code task (`tasks.json`) | 💥 Faah | ⭐ Wow |
+| `cd` into a non-existent folder | 💥 Faah | silence |
+| Save a file with diagnostic errors | 💥 Faah | silence |
 
-| Trigger | What it catches |
+---
+
+## Supported tools
+
+### Build / test commands — Faah on failure, Wow on success
+
+| Ecosystem | Commands |
 |---|---|
-| **Terminal exit** | Any command typed in the integrated terminal that exits with a non-zero code — `npm test`, `mvn test`, `jest`, `pytest`, `cargo test`, `tsc`, etc. |
-| **Task failure** | VS Code tasks run via `tasks.json` or `Cmd+Shift+B` that exit with a non-zero code |
-| **Diagnostic error on save** | TypeScript, ESLint, Pylance, or any language server that reports errors after you save a file |
+| JavaScript / Node | `npm` `npx` `yarn` `pnpm` `bun` `bunx` `node` |
+| Java / JVM | `mvn` `mvnw` `gradle` `gradlew` `java` `ant` |
+| Python | `python` `python3` `pip` `pip3` `pytest` `tox` |
+| Rust | `cargo` |
+| Go | `go` |
+| .NET | `dotnet` |
+| Build tools | `make` `cmake` `ninja` |
+| Ruby | `bundle` `rake` `rspec` |
+| Docker | `docker` `docker-compose` `podman` |
+| Cloud / Infra | `kubectl` `terraform` `ansible` |
+| Test runners | `jest` `mocha` `vitest` `jasmine` |
+| TypeScript | `tsc` `ts-node` |
+| Swift / Xcode | `swift` `xcodebuild` |
+| Elixir | `mix` |
+| PHP | `composer` `phpunit` |
 
-A 2-second debounce prevents the sound from firing multiple times in quick succession.
+### Navigation commands — Faah on failure, silent on success
+
+| Command | Example |
+|---|---|
+| `cd` | `cd nonexistent` → Faah, `cd existing` → silence |
+
+All other shell commands (`ls`, `echo`, `mkdir`, `grep`, etc.) are ignored entirely.
 
 ---
 
@@ -31,13 +60,13 @@ A 2-second debounce prevents the sound from firing multiple times in quick succe
 
 1. Open VS Code
 2. Go to the Extensions panel (`Cmd+Shift+X` / `Ctrl+Shift+X`)
-3. Search for **Faah**
+3. Search for **Faah!**
 4. Click **Install**
 
 ### From VSIX
 
 ```bash
-code --install-extension faah-1.0.0.vsix
+code --install-extension faah-sound-1.3.0.vsix
 ```
 
 ---
@@ -51,7 +80,7 @@ code --install-extension faah-1.0.0.vsix
 
 ### Shell integration (for terminal trigger)
 
-VS Code enables shell integration automatically for `zsh`, `bash`, `fish`, and `PowerShell`. If the terminal trigger is not firing, confirm shell integration is active — you should see a small indicator at the left of each prompt line. If not, run:
+VS Code enables shell integration automatically for `zsh`, `bash`, `fish`, and `PowerShell`. You can confirm it's active by the small indicator at the left of each prompt line. If missing:
 
 `Cmd+Shift+P` → **Terminal: Configure Shell Integration**
 
@@ -61,11 +90,11 @@ VS Code enables shell integration automatically for `zsh`, `bash`, `fish`, and `
 
 | Command | Description |
 |---|---|
-| `Faah: Enable` | Turn the sound on |
-| `Faah: Disable` | Turn the sound off |
+| `Faah: Enable` | Turn sounds on |
+| `Faah: Disable` | Turn sounds off |
 | `Faah: Show Logs` | Open the output panel to see what Faah is detecting in real time |
 
-All commands are accessible via `Cmd+Shift+P` / `Ctrl+Shift+P`.
+All commands accessible via `Cmd+Shift+P` / `Ctrl+Shift+P`.
 
 ---
 
