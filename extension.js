@@ -55,9 +55,8 @@ function playSound(soundPath) {
   }
 }
 
-// Commands that represent real build/test/run work.
-// Only these trigger sounds in the integrated terminal.
-var MEANINGFUL_COMMANDS = new Set([
+// Build/test commands: faah on failure, wow on success.
+var BUILD_COMMANDS = new Set([
   // JavaScript / Node
   'npm', 'npx', 'yarn', 'pnpm', 'bun', 'bunx', 'node',
   // Java / JVM
@@ -90,26 +89,27 @@ var MEANINGFUL_COMMANDS = new Set([
   'composer', 'phpunit',
 ]);
 
+// Navigation/existence commands: faah on failure, silent on success.
+var FAILURE_ONLY_COMMANDS = new Set(['cd']);
+
 /**
- * Returns true only if the terminal command is a meaningful build/test tool.
- * Ignores trivial shell commands like cd, ls, echo, mkdir, etc.
+ * Parses the base command name from a shell execution.
+ * Returns null if confidence is too low to trust the command line.
  * @param {any} execution
- * @returns {boolean}
+ * @returns {string|null}
  */
-function isMeaningfulCommand(execution) {
-  if (!execution || !execution.commandLine) return false;
+function resolveCommandName(execution) {
+  if (!execution || !execution.commandLine) return null;
   var cl = execution.commandLine;
-  // confidence 0 = Low — shell integration couldn't reliably detect the command
-  if (typeof cl.confidence === 'number' && cl.confidence === 0) return false;
+  if (typeof cl.confidence === 'number' && cl.confidence === 0) return null;
   var parts = (cl.value || '').trim().split(/\s+/);
   var cmd = parts[0] || '';
-  // Strip any path prefix (e.g. /usr/local/bin/npm → npm)
   cmd = cmd.split('/').pop().split('\\').pop();
-  // Unwrap common transparent wrappers
+  // Unwrap transparent wrappers
   if (cmd === 'sudo' || cmd === 'time' || cmd === 'npx' || cmd === 'bunx') {
     cmd = ((parts[1] || '').split('/').pop().split('\\').pop());
   }
-  return MEANINGFUL_COMMANDS.has(cmd);
+  return cmd || null;
 }
 
 /** @param {vscode.ExtensionContext} context */
@@ -151,17 +151,24 @@ function activate(context) {
   if (typeof vscode.window.onDidEndTerminalShellExecution === 'function') {
     context.subscriptions.push(
       vscode.window.onDidEndTerminalShellExecution(function(event) {
-        var cmd = event.execution && event.execution.commandLine ? event.execution.commandLine.value : '?';
-        log('terminal exit — code: ' + event.exitCode + ' cmd: ' + cmd);
-        if (typeof event.exitCode !== 'number') return;
-        if (!isMeaningfulCommand(event.execution)) {
-          log('terminal exit — skipped (not a build/test command)');
-          return;
-        }
-        if (event.exitCode !== 0) {
-          playSound(soundPath);
+        var cmdName = resolveCommandName(event.execution);
+        log('terminal exit — code: ' + event.exitCode + ' cmd: ' + (cmdName || '?'));
+        if (typeof event.exitCode !== 'number' || !cmdName) return;
+
+        if (BUILD_COMMANDS.has(cmdName)) {
+          // Build/test command: faah on failure, wow on success
+          if (event.exitCode !== 0) {
+            playSound(soundPath);
+          } else {
+            playSound(wowPath);
+          }
+        } else if (FAILURE_ONLY_COMMANDS.has(cmdName)) {
+          // Navigation command: faah on failure, silent on success
+          if (event.exitCode !== 0) {
+            playSound(soundPath);
+          }
         } else {
-          playSound(wowPath);
+          log('terminal exit — skipped (not a tracked command)');
         }
       })
     );
