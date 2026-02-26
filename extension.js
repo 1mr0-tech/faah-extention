@@ -61,7 +61,9 @@ function activate(context) {
   context.subscriptions.push(out);
 
   const soundPath = path.join(context.extensionPath, 'Faah sound effect.mp3');
-  log('activated — sound: ' + soundPath);
+  const wowPath = path.join(context.extensionPath, 'Wow sound effects.mp3');
+  log('activated — faah: ' + soundPath);
+  log('activated — wow:  ' + wowPath);
   log('platform: ' + process.platform);
   log('shell integration available: ' + (typeof vscode.window.onDidEndTerminalShellExecution === 'function'));
 
@@ -85,16 +87,20 @@ function activate(context) {
     })
   );
 
-  // Trigger 1a: terminal command failure
-  // Fires when any command typed in the integrated terminal exits non-zero.
+  // Trigger 1a: terminal command exit
+  // Fires when any command typed in the integrated terminal exits.
   // Covers: npm test, mvn test, jest, pytest, cargo test, go test, tsc, etc.
   // Requires VS Code shell integration (enabled by default for zsh/bash/fish/PowerShell).
   if (typeof vscode.window.onDidEndTerminalShellExecution === 'function') {
     context.subscriptions.push(
       vscode.window.onDidEndTerminalShellExecution(function(event) {
         log('terminal exit — code: ' + event.exitCode);
-        if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
-          playSound(soundPath);
+        if (typeof event.exitCode === 'number') {
+          if (event.exitCode !== 0) {
+            playSound(soundPath);
+          } else {
+            playSound(wowPath);
+          }
         }
       })
     );
@@ -102,13 +108,17 @@ function activate(context) {
     log('WARNING: onDidEndTerminalShellExecution not available (requires VS Code 1.93+)');
   }
 
-  // Trigger 1b: VS Code Task failure
-  // Fires when a task run via tasks.json or Cmd+Shift+B exits non-zero.
+  // Trigger 1b: VS Code Task exit
+  // Fires when a task run via tasks.json or Cmd+Shift+B exits.
   context.subscriptions.push(
     vscode.tasks.onDidEndTaskProcess(function(event) {
       log('task ended — "' + event.execution.task.name + '" code: ' + event.exitCode);
-      if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
-        playSound(soundPath);
+      if (typeof event.exitCode === 'number') {
+        if (event.exitCode !== 0) {
+          playSound(soundPath);
+        } else {
+          playSound(wowPath);
+        }
       }
     })
   );

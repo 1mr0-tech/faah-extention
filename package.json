@@ -2,7 +2,7 @@
   "name": "faah-sound",
   "displayName": "Faah!",
   "description": "Get hit with the FAAH effect the moment your code breaks — terminal exits, task failures, and diagnostic errors on save.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "1mr0-tech",
   "license": "MIT",
   "repository": {
