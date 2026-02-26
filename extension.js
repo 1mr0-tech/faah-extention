@@ -55,6 +55,63 @@ function playSound(soundPath) {
   }
 }
 
+// Commands that represent real build/test/run work.
+// Only these trigger sounds in the integrated terminal.
+var MEANINGFUL_COMMANDS = new Set([
+  // JavaScript / Node
+  'npm', 'npx', 'yarn', 'pnpm', 'bun', 'bunx', 'node',
+  // Java / JVM
+  'mvn', 'mvnw', 'gradle', 'gradlew', 'java', 'ant',
+  // Python
+  'python', 'python3', 'pip', 'pip3', 'pytest', 'tox',
+  // Rust
+  'cargo',
+  // Go
+  'go',
+  // .NET
+  'dotnet',
+  // Build tools
+  'make', 'cmake', 'ninja',
+  // Ruby
+  'bundle', 'rake', 'rspec',
+  // Docker
+  'docker', 'docker-compose', 'podman',
+  // Cloud / infra
+  'kubectl', 'terraform', 'ansible',
+  // Test runners
+  'jest', 'mocha', 'vitest', 'jasmine',
+  // TypeScript
+  'tsc', 'ts-node',
+  // Swift / Xcode
+  'swift', 'xcodebuild',
+  // Elixir / Phoenix
+  'mix',
+  // PHP
+  'composer', 'phpunit',
+]);
+
+/**
+ * Returns true only if the terminal command is a meaningful build/test tool.
+ * Ignores trivial shell commands like cd, ls, echo, mkdir, etc.
+ * @param {any} execution
+ * @returns {boolean}
+ */
+function isMeaningfulCommand(execution) {
+  if (!execution || !execution.commandLine) return false;
+  var cl = execution.commandLine;
+  // confidence 0 = Low — shell integration couldn't reliably detect the command
+  if (typeof cl.confidence === 'number' && cl.confidence === 0) return false;
+  var parts = (cl.value || '').trim().split(/\s+/);
+  var cmd = parts[0] || '';
+  // Strip any path prefix (e.g. /usr/local/bin/npm → npm)
+  cmd = cmd.split('/').pop().split('\\').pop();
+  // Unwrap common transparent wrappers
+  if (cmd === 'sudo' || cmd === 'time' || cmd === 'npx' || cmd === 'bunx') {
+    cmd = ((parts[1] || '').split('/').pop().split('\\').pop());
+  }
+  return MEANINGFUL_COMMANDS.has(cmd);
+}
+
 /** @param {vscode.ExtensionContext} context */
 function activate(context) {
   out = vscode.window.createOutputChannel('Faah');
@@ -94,13 +151,17 @@ function activate(context) {
   if (typeof vscode.window.onDidEndTerminalShellExecution === 'function') {
     context.subscriptions.push(
       vscode.window.onDidEndTerminalShellExecution(function(event) {
-        log('terminal exit — code: ' + event.exitCode);
-        if (typeof event.exitCode === 'number') {
-          if (event.exitCode !== 0) {
-            playSound(soundPath);
-          } else {
-            playSound(wowPath);
-          }
+        var cmd = event.execution && event.execution.commandLine ? event.execution.commandLine.value : '?';
+        log('terminal exit — code: ' + event.exitCode + ' cmd: ' + cmd);
+        if (typeof event.exitCode !== 'number') return;
+        if (!isMeaningfulCommand(event.execution)) {
+          log('terminal exit — skipped (not a build/test command)');
+          return;
+        }
+        if (event.exitCode !== 0) {
+          playSound(soundPath);
+        } else {
+          playSound(wowPath);
         }
       })
     );
